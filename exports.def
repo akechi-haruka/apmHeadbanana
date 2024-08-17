@@ -1,0 +1,6 @@
+LIBRARY apmHeadbananaVolume
+
+EXPORTS
+    apmHeadphoneVolumeGet
+    apmHeadphoneVolumeSet
+    apmHeadphoneChannelsSet
