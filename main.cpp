@@ -37,6 +37,8 @@ BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
     dprintf(LOG_NAME "Loading\n");
 
     volume = 100;
+    volume_channels[0] = 0;
+    volume_channels[1] = 1;
 
     HRESULT hr;
 
