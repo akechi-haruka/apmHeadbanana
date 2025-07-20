@@ -15,6 +15,7 @@
 
 static int volume_channels[MAX_CH] = {-1};
 static float volume;
+static bool volume_full_range;
 
 static IMMDevice *audioDevice = NULL;
 static IAudioEndpointVolume* audioEndpoint = NULL;
@@ -91,9 +92,14 @@ DLLEXPORT float apmHeadphoneVolumeGet() {
 DLLEXPORT void apmHeadphoneVolumeSet(float val){
     dprintf(LOG_NAME "HeadphoneVolumeSet: %f\n", val);
     if (val != volume) {
-        volume = val;
+        volume = val * (float)(volume_full_range ? 2 : 1);
         updateAudioClient();
     }
+}
+
+DLLEXPORT void apmHeadphoneVolumeSetFullRange(bool full_range){
+    dprintf(LOG_NAME "HeadphoneVolumeSetFullRange: %d\n", full_range);
+    volume_full_range = full_range;
 }
 
 DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
@@ -118,7 +124,7 @@ DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
 }
 
 DLLEXPORT int apmHeadbananaVersionGet(){
-    return 1;
+    return 2;
 }
 
 #pragma clang diagnostic pop
