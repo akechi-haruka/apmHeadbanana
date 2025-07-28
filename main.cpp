@@ -2,6 +2,7 @@
 #include <mmdeviceapi.h>
 #include <assert.h>
 #include <endpointvolume.h>
+#include <wctype.h>
 #include "dprintf.h"
 
 #pragma clang diagnostic push
@@ -86,7 +87,7 @@ void updateAudioClient(){
 
 DLLEXPORT float apmHeadphoneVolumeGet() {
     dprintf(LOG_NAME "HeadphoneVolumeGet: %f\n", volume);
-    return (float)volume;
+    return (float)volume / (volume_full_range ? (float)2 : (float)1);
 }
 
 DLLEXPORT void apmHeadphoneVolumeSet(float val){
