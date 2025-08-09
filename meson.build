@@ -15,7 +15,8 @@ add_project_arguments(
 # not the executables that use the library.
 lib_args = ['-DBUILDING_MESON_LIBRARY']
 
-shared_library('apmHeadbananaVolume', 'main.cpp', 'dprintf.h', 'dprintf.cpp',
+shared_library('apmHeadphoneVolume', 'main.cpp', 'dprintf.h', 'dprintf.cpp',
                c_args : lib_args,
+               name_prefix : '',
                vs_module_defs : 'exports.def',
 )

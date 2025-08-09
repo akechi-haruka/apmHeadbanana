@@ -48,22 +48,37 @@ BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
 
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     dprintf(LOG_NAME "CoInitializeEx: %lx\n", hr);
+    if (!SUCCEEDED(hr)) {
+        goto fail;
+    }
 
     hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
     dprintf(LOG_NAME "CoCreateInstance: %lx\n", hr);
-    assert(SUCCEEDED(hr));
+    if (!SUCCEEDED(hr)) {
+        goto fail;
+    }
 
     hr = enumerator->GetDefaultAudioEndpoint(eRender, eMultimedia, &audioDevice);
     dprintf(LOG_NAME "GetDefaultAudioEndpoint: %lx\n", hr);
-    assert(SUCCEEDED(hr));
+    if (!SUCCEEDED(hr)) {
+        goto fail;
+    }
 
-    audioDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&audioEndpoint);
+    hr = audioDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL, NULL, (void**)&audioEndpoint);
     dprintf(LOG_NAME "Activate: %lx\n", hr);
-    assert(SUCCEEDED(hr));
+    if (!SUCCEEDED(hr)) {
+        goto fail;
+    }
 
     enumerator->Release();
 
     dprintf(LOG_NAME "Initialized\n");
+
+    return TRUE;
+
+fail:
+
+    dprintf(LOG_NAME "Initialization failure\n");
 
     return TRUE;
 }
@@ -104,6 +119,10 @@ DLLEXPORT void apmHeadphoneVolumeSetFullRange(bool full_range){
 }
 
 DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
+    if (audioEndpoint == NULL) {
+        dprintf(LOG_NAME "HeadphoneChannelsSet failed: null\n");
+        return;
+    }
     for (int i = 0; i < MAX_CH; i++){
         volume_channels[i] = -1;
     }
