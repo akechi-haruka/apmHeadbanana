@@ -48,9 +48,6 @@ BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
 
     hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     dprintf(LOG_NAME "CoInitializeEx: %lx\n", hr);
-    if (!SUCCEEDED(hr)) {
-        goto fail;
-    }
 
     hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
     dprintf(LOG_NAME "CoCreateInstance: %lx\n", hr);
