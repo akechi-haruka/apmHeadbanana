@@ -5,3 +5,5 @@ EXPORTS
     apmHeadphoneVolumeSet
     apmHeadphoneChannelsSet
     apmHeadbananaVersionGet
+    apmHeadphoneVolumeSetFullRange
+    apmHeadphoneChannelsGet

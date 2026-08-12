@@ -136,8 +136,21 @@ DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
     }
 }
 
+DLLEXPORT int apmHeadphoneChannelsGet(){
+    int ret = 0;
+
+    for (int i = 0; i < MAX_CH; i++){
+        int ch = volume_channels[i];
+        if (ch != -1) {
+            ret |= 1 << ch;
+        }
+    }
+
+    return ret;
+}
+
 DLLEXPORT int apmHeadbananaVersionGet(){
-    return 2;
+    return 3;
 }
 
 #pragma clang diagnostic pop
