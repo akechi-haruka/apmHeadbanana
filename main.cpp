@@ -13,21 +13,22 @@
 
 #define MAX_CH 8
 
-static int volume_channels[MAX_CH] = {-1};
+static int volume_channels[MAX_CH] = {
+    -1
+};
 static float volume;
 static bool volume_full_range;
 
-static IMMDevice *audioDevice = NULL;
+static IMMDevice* audioDevice = NULL;
 static IAudioEndpointVolume* audioEndpoint = NULL;
 
-BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
-
-    if (cause == DLL_PROCESS_DETACH){
+BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void* ctx) {
+    if (cause == DLL_PROCESS_DETACH) {
         dprintf(LOG_NAME "Unloading\n");
-        if (audioEndpoint != NULL){
+        if (audioEndpoint != NULL) {
             audioEndpoint->Release();
         }
-        if (audioDevice != NULL){
+        if (audioDevice != NULL) {
             audioDevice->Release();
         }
         return TRUE;
@@ -77,14 +78,14 @@ fail:
     return TRUE;
 }
 
-void updateAudioClient(){
+void updateAudioClient() {
     if (audioEndpoint != NULL) {
         for (int i = 0; i < MAX_CH; i++) {
             int channel = volume_channels[i];
             if (channel >= 0) {
                 dprintf(LOG_NAME "UpdateAudioClient Ch%d: %f\n", channel, volume);
                 HRESULT hr = audioEndpoint->SetChannelVolumeLevelScalar(channel, volume / 100, NULL);
-                if (!SUCCEEDED(hr)){
+                if (!SUCCEEDED(hr)) {
                     dprintf(LOG_NAME "UpdateAudioClient failed on Ch%d: %lx\n", channel, hr);
                 }
             }
@@ -99,7 +100,7 @@ DLLEXPORT float apmHeadphoneVolumeGet() {
     return volume / (float)(volume_full_range ? 2 : 1);
 }
 
-DLLEXPORT void apmHeadphoneVolumeSet(float val){
+DLLEXPORT void apmHeadphoneVolumeSet(float val) {
     dprintf(LOG_NAME "HeadphoneVolumeSet: %f\n", val);
     if (val != volume) {
         volume = val * (float)(volume_full_range ? 2 : 1);
@@ -107,27 +108,27 @@ DLLEXPORT void apmHeadphoneVolumeSet(float val){
     }
 }
 
-DLLEXPORT void apmHeadphoneVolumeSetFullRange(bool full_range){
+DLLEXPORT void apmHeadphoneVolumeSetFullRange(bool full_range) {
     dprintf(LOG_NAME "HeadphoneVolumeSetFullRange: %d\n", full_range);
     volume_full_range = full_range;
 }
 
-DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
+DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len) {
     if (audioEndpoint == NULL) {
         dprintf(LOG_NAME "HeadphoneChannelsSet failed: null\n");
         return;
     }
-    for (int i = 0; i < MAX_CH; i++){
+    for (int i = 0; i < MAX_CH; i++) {
         volume_channels[i] = -1;
     }
-    for (int i = 0; i < len; i++){
+    for (int i = 0; i < len; i++) {
         int channel = channels[i];
         dprintf(LOG_NAME "HeadphoneChannelsSet: Ch%d = %d\n", i, channel);
         volume_channels[i] = channel;
 
         float currentVolume;
         HRESULT hr = audioEndpoint->GetChannelVolumeLevelScalar(channel, &currentVolume);
-        if (!SUCCEEDED(hr)){
+        if (!SUCCEEDED(hr)) {
             dprintf(LOG_NAME "GetChannelVolumeLevelScalar failed on Ch%d: %lx\n", channel, hr);
         } else {
             dprintf(LOG_NAME "Current volume: %f\n", currentVolume * 100);
@@ -136,10 +137,29 @@ DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
     }
 }
 
-DLLEXPORT int apmHeadphoneChannelsGet(){
+DLLEXPORT void apmHeadphoneChannelsSetInt(int channels) {
+    if (audioEndpoint == NULL) {
+        dprintf(LOG_NAME "apmHeadphoneChannelsSetInt failed: null\n");
+        return;
+    }
+
+    for (int i = 0; i < MAX_CH; i++) {
+        volume_channels[i] = -1;
+    }
+
+    int pos = 0;
+    for (int i = 0; i < (int)sizeof(int); i++) {
+        if ((channels & (1 << i)) != 0) {
+            dprintf(LOG_NAME "HeadphoneChannelsSet: Ch%d = %d\n", pos, i);
+            volume_channels[pos++] = i;
+        }
+    }
+}
+
+DLLEXPORT int apmHeadphoneChannelsGet() {
     int ret = 0;
 
-    for (int i = 0; i < MAX_CH; i++){
+    for (int i = 0; i < MAX_CH; i++) {
         int ch = volume_channels[i];
         if (ch != -1) {
             ret |= 1 << ch;
@@ -149,7 +169,7 @@ DLLEXPORT int apmHeadphoneChannelsGet(){
     return ret;
 }
 
-DLLEXPORT int apmHeadbananaVersionGet(){
+DLLEXPORT int apmHeadbananaVersionGet() {
     return 3;
 }
 
