@@ -1,8 +1,7 @@
+// ReSharper disable CppParameterNeverUsed
 #include <windows.h>
 #include <mmdeviceapi.h>
-#include <assert.h>
 #include <endpointvolume.h>
-#include <wctype.h>
 #include "dprintf.h"
 
 #pragma clang diagnostic push
@@ -21,7 +20,6 @@ static bool volume_full_range;
 static IMMDevice *audioDevice = NULL;
 static IAudioEndpointVolume* audioEndpoint = NULL;
 
-
 BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
 
     if (cause == DLL_PROCESS_DETACH){
@@ -33,7 +31,8 @@ BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
             audioDevice->Release();
         }
         return TRUE;
-    } else if (cause != DLL_PROCESS_ATTACH) {
+    }
+    if (cause != DLL_PROCESS_ATTACH) {
         return TRUE;
     }
     dprintf(LOG_NAME "Loading\n");
@@ -42,11 +41,9 @@ BOOL WINAPI DllMain(HMODULE mod, DWORD cause, void *ctx) {
     volume_channels[0] = 0;
     volume_channels[1] = 1;
 
-    HRESULT hr;
-
     IMMDeviceEnumerator* enumerator = NULL;
 
-    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
     dprintf(LOG_NAME "CoInitializeEx: %lx\n", hr);
 
     hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), NULL, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), (void**)&enumerator);
@@ -99,7 +96,7 @@ void updateAudioClient(){
 
 DLLEXPORT float apmHeadphoneVolumeGet() {
     dprintf(LOG_NAME "HeadphoneVolumeGet: %f\n", volume);
-    return (float)volume / (volume_full_range ? (float)2 : (float)1);
+    return volume / (float)(volume_full_range ? 2 : 1);
 }
 
 DLLEXPORT void apmHeadphoneVolumeSet(float val){
@@ -137,7 +134,6 @@ DLLEXPORT void apmHeadphoneChannelsSet(const int* channels, const int len){
             volume = currentVolume * 100;
         }
     }
-    //updateAudioClient();
 }
 
 DLLEXPORT int apmHeadbananaVersionGet(){

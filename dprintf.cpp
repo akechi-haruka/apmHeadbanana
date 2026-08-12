@@ -1,9 +1,6 @@
-#ifndef NDEBUG
-
 #include <windows.h>
 
 #include <stdarg.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -80,10 +77,4 @@ void dwprintfv(const wchar_t *fmt, va_list ap)
 
     _vsnwprintf_s(msg, _countof(msg), _countof(msg) - 1, fmt, ap);
     OutputDebugStringW(msg);
-}
-
-#endif
-
-void show_banner(const char* version){
-    dprintf("--- segamcovstools %s ---\nThanks to all the hard work of the original segatools authors!\n-------------------------------\nPlay Simply, Enjoy Life!\nDo not stream arcade data anywhere public!\nTHIS IS FREE SOFTWARE.\nIF YOU HAVE PAID, PLEDGED OR \"DONATED\" YOU HAVE BEEN SCAMMED AND SHOULD CHARGEBACK!\n-------------------------------\n", version);
 }
